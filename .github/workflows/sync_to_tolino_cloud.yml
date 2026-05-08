@@ -1,6 +1,8 @@
 
 name: Periodic Sync
 
+FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true
+
 on:
   schedule:
       # Runs multiple times on Wednesday at *6 to avoid high load on github actions at the full hour.
