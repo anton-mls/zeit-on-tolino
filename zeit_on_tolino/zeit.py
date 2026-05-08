@@ -36,22 +36,68 @@ def _get_credentials() -> Tuple[str, str]:
 
 
 def _login(webdriver: WebDriver) -> None:
+    r.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
+
+LOGIN_TIMEOUT = 30
+
+
+def _login(webdriver: WebDriver) -> None:
     username, password = _get_credentials()
+
     webdriver.get(ZEIT_LOGIN_URL)
 
-    username_field = webdriver.find_element(By.ID, "login_email")
-    username_field.send_keys(username)
-    password_field = webdriver.find_element(By.ID, "login_pass")
-    password_field.send_keys(password)
+    wait = WebDriverWait(webdriver, LOGIN_TIMEOUT)
 
-    btn = webdriver.find_element(By.CLASS_NAME, "submit-button.log")
-    btn.click()
-    time.sleep(Delay.small)
+    try:
+        # wait for email field
+        email_input = wait.until(
+            EC.presence_of_element_located(
+                (
+                    By.CSS_SELECTOR,
+                    "input[type='email'], input[name='email']",
+                )
+            )
+        )
 
-    if "anmelden" in webdriver.current_url:
-        raise RuntimeError("Failed to login, check your login credentials.")
+        email_input.clear()
+        email_input.send_keys(username)
 
-    WebDriverWait(webdriver, Delay.medium).until(EC.presence_of_element_located((By.CLASS_NAME, "page-section-header")))
+        # wait for password field
+        password_input = wait.until(
+            EC.presence_of_element_located(
+                (
+                    By.CSS_SELECTOR,
+                    "input[type='password']",
+                )
+            )
+        )
+
+        password_input.clear()
+        password_input.send_keys(password)
+
+        # login button
+        login_button = wait.until(
+            EC.element_to_be_clickable(
+                (
+                    By.CSS_SELECTOR,
+                    "button[type='submit'], input[type='submit']",
+                )
+            )
+        )
+
+        login_button.click()
+
+    except TimeoutException as exc:
+        raise RuntimeError(
+            "Could not find ZEIT login form. The website layout probably changed."
+        ) from exc
+
+    # wait until login completed
+    wait.until(lambda d: "anmelden" not in d.current_url.lower())
 
 
 def _get_latest_downloaded_file_path(download_dir: str) -> Path:
