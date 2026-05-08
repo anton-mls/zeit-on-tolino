@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 
 from zeit_on_tolino.env_vars import EnvVars, MissingEnvironmentVariable
 from zeit_on_tolino.web import Delay
@@ -21,6 +22,9 @@ BUTTON_TEXT_DOWNLOAD_EPUB = "EPUB FÜR E-READER LADEN"
 BUTTON_TEXT_EPUB_DOWNLOAD_IS_PENDING = "EPUB FOLGT IN KÜRZE"
 
 log = logging.getLogger(__name__)
+
+LOGIN_TIMEOUT = 30
+
 
 def _get_credentials() -> Tuple[str, str]:
     try:
@@ -36,10 +40,6 @@ def _get_credentials() -> Tuple[str, str]:
 
 
 def _login(webdriver: WebDriver) -> None:
-    r.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 
 
 LOGIN_TIMEOUT = 30
